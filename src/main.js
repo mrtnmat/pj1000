@@ -1,5 +1,5 @@
 import Phaser from 'phaser'
-import { CardScene } from './scenes/cardScene.js'
+import { CardScene } from './scenes/cardScene/scene.js'
 
 const config = {
   type: Phaser.AUTO,
