@@ -1,3 +1,3 @@
-export const generate = (i, genFn) => {
-  return Array.from({ length: i }, (_v, i) => genFn(i))
+export const generate = (length, genFn) => {
+  return Array.from({ length }, (_v, i) => genFn(i))
 }
