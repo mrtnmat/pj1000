@@ -1,10 +1,11 @@
 import { generate } from '../../utils.js'
 import { newCard, newCardSelectionOutline } from './cards.js'
-export const CardScene = new Phaser.Scene('CardScene')
+import chroma from 'chroma-js'
+export const CardScene = new Phaser.Scene('cards')
 
 const data = {
   scene: CardScene,
-  cardSize: { width: 40, height: 70 },
+  cardSize: { width: 60, height: 110 },
 }
 
 /**
@@ -15,6 +16,10 @@ const data = {
  */
 const selectCard = (data, card) => {
   data.cardOutline.setPosition(card.x, card.y)
+  const [h, s, v] = chroma(card.fillColor).hsv()
+  console.log(h, s, v)
+  console.log(chroma(card.fillColor).rgb(false))
+  data.cardOutline.strokeColor = chroma((h + 180) % 360, .15, v, 'hsv').num()
   data.cardOutline.setVisible(true)
 }
 
@@ -52,21 +57,43 @@ const setupCardInteraction = (data) => {
 const create = (data) => {
   return (_d) => {
     const scene = data.scene
-    data.cardOutline = newCardSelectionOutline({ ...data.cardSize, scene, x: 10, y: 10 })
+    data.cardOutline = newCardSelectionOutline({
+      ...data.cardSize, scene, x: 10, y: 10, color: chroma('white').num()
+    })
+    const start = Math.random() * 360
+    const cardColorsHSV = generate(length = 10, (i) => {
+      const h = (start + ((360 / length) * i)) % 360
+      const [s, v] = [0.95, 1]
+      // console.log(i, h)
+      return chroma(h, s, v, 'hsv')
+    })
+    const cardColorsOKLCH = generate(length = 10, (i) => {
+      const [h1, h2] = [170, 230]
+      const [l, c] = [0.74, 0.153]
+      var h = null
+      // console.log(i, h)
+      if (Math.random() > 0.5) { h = h1 } else h = h2
+      return chroma(l, c, h, 'oklch')
+    })
+    // console.log(cardColorsHSV)
     data.cards = generate(10,
       (i) => {
         const width = data.cardSize.width
         const height = data.cardSize.height
         const offset = 10
+        // const [l, c, h] = [0.6, 0.4, Math.random() * 360]
         return newCard({
           scene,
           x: (width + 10) * i + offset,
           y: offset,
           height, width,
-          fillColor: 0xff0000
+          //fillColor: cardColorsHSV[i].num(),
+          fillColor: cardColorsOKLCH[i].num(),
         }).setOrigin(0, 0)
       }
     )
+
+
     data.cards.forEach(card => {
       card.setInteractive()
       scene.children.add(card)
